@@ -7,14 +7,10 @@
 //
 //////////////////////////////////
 
-include "settings.inc.php";
-include "libs/ipay.class.php";
-include "libs/ipaydb.class.php";
+include_once "settings.inc.php";
+include_once "libs/ipay.class.php";
+include_once "libs/ipaydb.class.php";
 
-$siteid = $creditCardSettings['siteid'];
-$sendkey= $creditCardSettings['sendKey'];
-$receivekey = $creditCardSettings['receiveKey'];
-$debug = $creditCardSettings['debug'];
 
 if (isset($_GET['registrationId']) && isset($_GET['total'])) {
 
@@ -26,14 +22,14 @@ if (isset($_GET['registrationId']) && isset($_GET['total'])) {
 	echo "<p>You will be forwarded to the University of Illinois payment center momentarily.</p>";
 	echo "<p><b>Please have your credit card ready.</b></p>";
 
-	$creditcard = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
-	$time = $creditcard->get_time();
+	$ipay = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
+	$time = $ipay->get_time();
 
 	$db = new ipaydb(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
 	$db->set_time($time);
 	$referenceId = $db->start_transaction($amount,$registrationId);
 
-	$result = $creditcard->register($referenceId,$amount);
+	$result = $ipay->register($referenceId,$amount);
 
 	$responsecode = $result['ResponseCode'];
 	$token= $result['Token'];

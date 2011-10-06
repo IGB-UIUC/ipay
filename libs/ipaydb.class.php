@@ -121,7 +121,7 @@ class ipaydb {
 	//$token - unique token to identify which transaction failed.
 	//returns - none
 	
-	public function error($error_code,$error_msg),$token {
+	public function error($error_code,$error_msg,$token) {
 		$sql = "UPDATE ipay SET ipay_error_code='". $error_code . "',ipay_error_msg='" . $error_msg . "') "; 
 		$sql .= "WHERE ipay_token='" . $token . "'";
 		mysql_query($sql,$this->db) 

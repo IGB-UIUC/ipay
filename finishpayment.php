@@ -9,11 +9,9 @@
 //
 //////////////////////////////////
 
-include "settings.inc.php";
-include "libs/ipay.class.php";
-include "libs/ipaydb.class.php";
-
-
+include_once "settings.inc.php";
+include_once "libs/ipay.class.php";
+include_once "libs/ipaydb.class.php";
 
 if (!isset($_GET['token']) || $_GET['submit'] == "Return") {
 	echo "<meta http-equiv='refresh' content='0;registration.php'>";
@@ -37,10 +35,10 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 
 		if ($status == "Pending") { // need to do the capture rigamarole....
 
-			$creditcard = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
-			$time = $creditcard->get_time();
+			$ipay = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
+			$time = $ipay->get_time();
 			$db->set_time($time);
-			$resultResults = $creditcard->result($token);
+			$resultResults = $ipay->result($token);
 			$responsecode = $resultResults['ResponseCode'];
 			$timestamp = $registrationResult['TimeStamp'];
 			$transactionId = $registrationResult['TransactionID'];
@@ -56,7 +54,7 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 
 				$amounts = array($amount1);
 				$accounts  = array($account1);
-				$capture = $creditcard->capture($accounts,$amounts);
+				$capture = $ipay->capture($accounts,$amounts);
 
 				$responsecode = $capture['ResponseCode'];
 				$timestamp = $capture['TimeStamp'];
