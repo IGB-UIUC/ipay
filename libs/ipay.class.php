@@ -1,15 +1,15 @@
 <?php
-//////////////////////////////////////////
-//										//
-//	ipay.class.php						//
-//										//
-//	Class to interface with UofI		//
-//	iPay credit card system.			//
-//										//
-//	By: David Slater					//
-//	Date: 06/2008						//
-//										//
-//////////////////////////////////////////
+////////////////////////////////////////
+//
+//	ipay.class.php
+//
+//	Class to interface with UofI
+//	iPay credit card system.
+//
+//	By: David Slater
+//	Date: 06/2008
+//
+////////////////////////////////////////
 
 
 class ipay {
@@ -71,15 +71,13 @@ class ipay {
 	}
 	
 	//__destruct()
-	public function __destruct() {
-
-	}
+	public function __destruct() {}
 
 	//register() - step 1 - 
 	//parameters -
-	//		$referenceId - integer number
-	//		$amount - number
-	//returns - 
+	//$referenceId - integer number
+	//$amount - number
+	//returns - array - 
 	public function register($referenceId,$amount) {
 		$amount = number_format($amount,2);
 	
