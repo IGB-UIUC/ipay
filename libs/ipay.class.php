@@ -163,12 +163,15 @@ class ipay {
 	//getTime() - returns the time for logging purposes
 	//parameters - none
 	//returns - time
-	public function getTime() {
+	public function get_time() {
 		$currentTime = gmdate('Y-m-d H:i:s',$this->gmtimestamp);
 		return $currentTime;
 	}
 	
-	
+	public function get_error($error_code) {
+		return $responseCodeErrors[$error_code];
+		
+	}
 //////////////////////////////Private Functions/////////////////////////////
 	
 	//certify() - strings to get values from an array and returns mhash  based on the input key

@@ -9,17 +9,11 @@
 //
 //////////////////////////////////
 
-include "includes/settings.inc.php";
-include "includes/creditcard.inc.php";
-include "includes/ipay.class.php";
-include "includes/ipaydb.class.php";
+include "settings.inc.php";
+include "libs/ipay.class.php";
+include "libs/ipaydb.class.php";
 
-//Site Settings from includes/settings.inc.php
-$siteid = $creditCardSettings['siteid'];
-$sendkey= $creditCardSettings['sendKey'];
-$receivekey = $creditCardSettings['receiveKey'];
-$debug = $creditCardSettings['debug'];
-$account1 = $creditCardSettings['account1'];
+
 
 if (!isset($_GET['token']) || $_GET['submit'] == "Return") {
 	echo "<meta http-equiv='refresh' content='0;registration.php'>";
@@ -28,9 +22,9 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 
 	$token=$_GET['token'];
 
-	$db = new ipaydb($mysqlSettings);
+	$db = new ipaydb(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);;
 
-	$result = $db->getTransaction($token);
+	$result = $db->get_transaction($token);
 
 	if (count($result) == 0) { // invalid TOKEN--no rows returned from database
 
@@ -38,14 +32,14 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 	}
 	else { // token is in database table.
 
-		$status = $result[0]['status_name'];
+		$status = $result[0]['ipay_status'];
 
 
 		if ($status == "Pending") { // need to do the capture rigamarole....
 
-			$creditcard = new ipay($debug,$siteid,$sendkey,$receivekey);
-			$time = $creditcard->getTime();
-			$db->setTime($time);
+			$creditcard = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
+			$time = $creditcard->get_time();
+			$db->set_time($time);
 			$resultResults = $creditcard->result($token);
 			$responsecode = $resultResults['ResponseCode'];
 			$timestamp = $registrationResult['TimeStamp'];
@@ -53,12 +47,12 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 			$errorMsg = $registrationResult['ErrorMsg'];
 
 			if ($responsecode != 0) { // Some sort of error has occurred...
-				echo "<p>An error has occurred.  Response Code $responsecode: " . $errorMsg . "</p>";
+				echo "<p>An error has occurred.  Response Code " . $responsecode . ": " . $errorMsg . "</p>";
 				$db->error($responsecode,$errorMsg,$token);
 			}
 			else { // It worked successfully--send capture information...
 
-				$amount1 = $db->getPaymentAmount($token);
+				$amount1 = $db->get_payment_amount($token);
 
 				$amounts = array($amount1);
 				$accounts  = array($account1);
@@ -70,13 +64,13 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 				$transactionId = $capture['TransactionID'];
 
 				if ($responsecode != 0) { // Some sort of error has occurred...
-					echo "<p>An error has occurred.  Response Code $responsecode: " . $errorMsg . "</p>";
+					echo "<p>An error has occurred.  Response Code " . $responsecode . ": " . $errorMsg . "</p>";
 					$db->error($responsecode,$errorMsg,$token);
 
 				}
 				else { // It worked successfully--display receipt...
 
-					$db->finalizeTransaction($token,$transactionId,$account1,$amount1);
+					$db->finalize_transaction($token,$transactionId,$account1,$amount1);
 
 					header ("Location:thankyou.php?token=$token");
 				}
