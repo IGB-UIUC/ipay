@@ -7,10 +7,9 @@
 //
 //////////////////////////////////
 
-include "includes/settings.inc.php";
-include "includes/creditcard.inc.php";
-include "includes/ipay.class.php";
-include "includes/ipaydb.class.php";
+include "settings.inc.php";
+include "libs/ipay.class.php";
+include "libs/ipaydb.class.php";
 
 $siteid = $creditCardSettings['siteid'];
 $sendkey= $creditCardSettings['sendKey'];
@@ -27,24 +26,24 @@ if (isset($_GET['registrationId']) && isset($_GET['total'])) {
 	echo "<p>You will be forwarded to the University of Illinois payment center momentarily.</p>";
 	echo "<p><b>Please have your credit card ready.</b></p>";
 
-	$creditcard = new ipay($debug,$siteid,$sendkey,$receivekey);
-	$time = $creditcard->getTime();
+	$creditcard = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
+	$time = $creditcard->get_time();
 
-	$db = new ipaydb($mysqlSettings);
-	$db->setTime($time);
-	$referenceId = $db->startTransaction($amount,$registrationId);
+	$db = new ipaydb(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
+	$db->set_time($time);
+	$referenceId = $db->start_transaction($amount,$registrationId);
 
-	$registrationResult = $creditcard->register($referenceId,$amount);
+	$result = $creditcard->register($referenceId,$amount);
 
-	$responsecode = $registrationResult['ResponseCode'];
-	$token= $registrationResult['Token'];
-	$redirecturl = $registrationResult['Redirect'];
-	$timeStamp = $registrationResult['TimeStamp'];
-	$transactionId = $registrationResult['TransactionId'];
-	$errorMsg = $registrationResult['ErrorMsg'];
+	$responsecode = $result['ResponseCode'];
+	$token= $result['Token'];
+	$redirecturl = $result['Redirect'];
+	$timeStamp = $result['TimeStamp'];
+	$transactionId = $result['TransactionId'];
+	$errorMsg = $result['ErrorMsg'];
 
 	if ($responsecode != '0') { // Some sort of error has occurred...
-		echo "<p>An error has occurred.  Response Code $responsecode: " . $responseCodeErrors[$responsecode] . "</p>";
+		echo "<p>An error has occurred.  Response Code " . $responsecode . ": " . $errorMsg . "</p>";
 		$db->error($responsecode,$errorMsg,$token);
 	}
 	else { // It worked successfully--send them on their way..
