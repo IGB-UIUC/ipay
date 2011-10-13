@@ -14,7 +14,7 @@ define("__MYSQL_DATABASE__","");
 define("__SITE_ID__","");
 define("__SEND_KEY__","");
 define("__RECEIVE_KEY__","");
-defeine("__ACCOUNT__","");
+define("__ACCOUNT__","");
 define("__DEBUG__","");
 
 

@@ -8,13 +8,14 @@
 //////////////////////////////////
 
 include_once "settings.inc.php";
+include_once "libs/db.class.inc.php";
 include_once "libs/ipay.class.php";
 include_once "libs/ipaydb.class.php";
 
 
-if (isset($_GET['registrationId']) && isset($_GET['total'])) {
+if (isset($_GET['registration_id']) && isset($_GET['total'])) {
 
-	$registrationId = $_GET['registrationId'];
+	$registration_id = $_GET['registration_id'];
 	$total = $_GET['total'];
 
 	$amount = $total . ".00";
@@ -23,29 +24,20 @@ if (isset($_GET['registrationId']) && isset($_GET['total'])) {
 	echo "<p><b>Please have your credit card ready.</b></p>";
 
 	$ipay = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
-	$time = $ipay->get_time();
 
-	$db = new ipaydb(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
-	$db->set_time($time);
-	$referenceId = $db->start_transaction($amount,$registrationId);
+	$db = new db(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
+	$ipaydb = new ipaydb($db);
+	$ipay_id = $ipaydb->start_transaction($amount,$registration_id);
 
-	$result = $ipay->register($referenceId,$amount);
+	$result = $ipay->register($ipay_id,$amount);
 
-	$responsecode = $result['ResponseCode'];
-	$token= $result['Token'];
-	$redirecturl = $result['Redirect'];
-	$timeStamp = $result['TimeStamp'];
-	$transactionId = $result['TransactionId'];
-	$errorMsg = $result['ErrorMsg'];
-
-	if ($responsecode != '0') { // Some sort of error has occurred...
-		echo "<p>An error has occurred.  Response Code " . $responsecode . ": " . $errorMsg . "</p>";
-		$db->error($responsecode,$errorMsg,$token);
+	if ($result['ResponseCode']) { // Some sort of error has occurred...
+		echo "<p>An error has occurred.  Response Code " . $result['ResponseCode'] . ": " . $result['ErrorMsg'] . "</p>";
+		$ipaydb->error($result['ResponseCode'],$result['ErrorMsg'],$result['Token']);
 	}
 	else { // It worked successfully--send them on their way..
-
-		$db->updateTransaction($token);
-		echo "<meta http-equiv='refresh' content='5;url=$redirecturl?token=$token'>";
+		$ipaydb->update_transaction($result['Token']);
+		echo "<meta http-equiv='refresh' content='5;url=" . $result['Redirect'] . "?token=" . $result['Token'] . "'>";
 	}
 
 }
