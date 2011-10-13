@@ -10,6 +10,7 @@
 //////////////////////////////////
 
 include_once "settings.inc.php";
+include_once "libs/db.class.inc.php";
 include_once "libs/ipay.class.php";
 include_once "libs/ipaydb.class.php";
 
@@ -20,9 +21,10 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 
 	$token=$_GET['token'];
 
-	$db = new ipaydb(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);;
+	$db = new db(__MYSQL_HOST__,__MYSQL_DATABASE__,__MYSQL_USER__,__MYSQL_PASSWORD__);
+	$ipaydb = new ipaydb($db);
 
-	$result = $db->get_transaction($token);
+	$result = $ipaydb->get_transaction($token);
 
 	if (count($result) == 0) { // invalid TOKEN--no rows returned from database
 
@@ -36,41 +38,28 @@ elseif (isset($_GET['token'])) { // token passed in GET data
 		if ($status == "Pending") { // need to do the capture rigamarole....
 
 			$ipay = new ipay(__DEBUG__,__SITE_ID__,__SEND_KEY__,__RECEIVE_KEY__);
-			$time = $ipay->get_time();
-			$db->set_time($time);
-			$resultResults = $ipay->result($token);
-			$responsecode = $resultResults['ResponseCode'];
-			$timestamp = $registrationResult['TimeStamp'];
-			$transactionId = $registrationResult['TransactionID'];
-			$errorMsg = $registrationResult['ErrorMsg'];
+			$results = $ipay->result($token);
 
-			if ($responsecode != 0) { // Some sort of error has occurred...
-				echo "<p>An error has occurred.  Response Code " . $responsecode . ": " . $errorMsg . "</p>";
-				$db->error($responsecode,$errorMsg,$token);
+			if ($results['ResponseCode']) { // Some sort of error has occurred...
+				echo "<p>An error has occurred.  Response Code " . $results['ResponseCode'] . ": " . $result['ErrorMsg'] . "</p>";
+				$ipaydb->error($results['ResponseCode'],$result['ErrorMsg'],$token);
 			}
 			else { // It worked successfully--send capture information...
 
-				$amount1 = $db->get_payment_amount($token);
-
-				$amounts = array($amount1);
-				$accounts  = array($account1);
+				$amount = $ipaydb->get_payment_amount($token);
+				$amounts = array($amount);
+				$accounts  = array(__ACCOUNT__);
 				$capture = $ipay->capture($accounts,$amounts);
-
-				$responsecode = $capture['ResponseCode'];
-				$timestamp = $capture['TimeStamp'];
-				$errorMsg = $capture['ErrorMsg'];
-				$transactionId = $capture['TransactionID'];
-
-				if ($responsecode != 0) { // Some sort of error has occurred...
-					echo "<p>An error has occurred.  Response Code " . $responsecode . ": " . $errorMsg . "</p>";
-					$db->error($responsecode,$errorMsg,$token);
+				if ($capture['ResponseCode'] != 0) { // Some sort of error has occurred...
+					echo "<p>An error has occurred.  Response Code " . $capture['ResponseCode'] . ": " . $capture['ErrorMsg'] . "</p>";
+					$ipaydb->error($capture['ResponseCode'],$capture['ErrorMsg'],$token);
 
 				}
 				else { // It worked successfully--display receipt...
 
-					$db->finalize_transaction($token,$transactionId,$account1,$amount1);
+					$ipaydb->finalize_transaction($token,$capture['TransactionID'],__ACCOUNT__,$amount);
 
-					header ("Location:thankyou.php?token=$token");
+					header ('Location:thankyou.php?token=$token');
 				}
 			}
 		}
