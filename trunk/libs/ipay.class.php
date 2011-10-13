@@ -99,8 +99,8 @@ class ipay {
 
 	//result() - step 2 -
 	//parameters -
-	//		$token - string
-	//returns -
+	//$token - string
+	//returns - array
 	public function result($token) {
 		$this->token = $token;
 		$certifythis = array($this->siteid,$this->gmtime,$token);
@@ -123,9 +123,9 @@ class ipay {
 
 	//capture() - step 3 -
 	//parameters -
-	//		$accounts - array of strings - an array of cfop accounts
-	//		$amounts - array of numbers - corresponding array of amounts to put into each cfop account
-	//returns -
+	//$accounts - array of strings - an array of cfop accounts
+	//$amounts - array of numbers - corresponding array of amounts to put into each cfop account
+	//returns - array
 	public function capture($accounts,$amounts) {
 		if ((count($accounts) == count($amounts)) && (count(accounts) > 0)) {
 			$numAccounts = count($accounts);
@@ -175,8 +175,8 @@ class ipay {
 
 	//certify() - strings to get values from an array and returns mhash  based on the input key
 	//parameters -
-	//	$values - string array - contains variables to certify
-	//	$key	- string - encryption key
+	//$values - string array - contains variables to certify
+	//$key	- string - encryption key
 	//returns - encrypted certification string of the values
 	private function certify($values,$key) {
 		$certifythis = implode("",$values);
@@ -186,8 +186,8 @@ class ipay {
 
 	//httppost() - posts variables to iPay website using curl
 	//parameters -
-	//		$params - string - contains http post variables to be sent in form "variable1=value1&variable2=value2&variable3=value3"
-	//		$url - string - website address
+	//$params - string - contains http post variables to be sent in form "variable1=value1&variable2=value2&variable3=value3"
+	//$url - string - website address
 	//returns - an array of the results
 	private function httppost($params,$url) {
 		$ch = curl_init();

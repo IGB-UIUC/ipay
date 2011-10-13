@@ -50,10 +50,10 @@ class ipaydb {
 	//parameters -
 	//$amount - the amount to be charge
 	//$registration_id - id number this ipay transaction is for.		
+	//$time - timestamp
 	//returns - unique id from the new row in ipay table
-	public function start_transaction($amount,$registration_id) {
-
-		$time = gmdate('Y-m-d H:i:s',$this->gmtimestamp);			
+	public function start_transaction($amount,$registration_id,$time) {
+		
 		$status = "Pending";
 		$sql = "INSERT INTO ipay(ipay_payment_amount,ipay_status,";
 		$sql .= "ipay_time,ipay_registration_id) ";
@@ -125,7 +125,7 @@ class ipaydb {
 		$sql = "SELECT * from ipay WHERE ipay_token='" . $this->token . "' LIMIT 1";
 		$result = $this->db->query($sql);
 		if ($result) {
-			$this->ipay_id = $result[0=]['ipay_id'];
+			$this->ipay_id = $result[0]['ipay_id'];
 			$this->registration_id = $result[0]['ipay_registration_id'];
 			$this->time = $result[0]['ipay_time'];
 		}			

@@ -17,7 +17,4 @@ define("__RECEIVE_KEY__","");
 define("__ACCOUNT__","");
 define("__DEBUG__","");
 
-
-
-
 ?>

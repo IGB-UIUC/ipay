@@ -7,7 +7,7 @@
 //
 //////////////////////////////////
 
-include_once "settings.inc.php";
+include_once "includes/settings.inc.php";
 include_once "libs/db.class.inc.php";
 include_once "libs/ipay.class.php";
 include_once "libs/ipaydb.class.php";
