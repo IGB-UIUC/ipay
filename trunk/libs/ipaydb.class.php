@@ -77,8 +77,8 @@ class ipaydb {
 	}
 	
 	public function get_transaction() {
-		$sql = "SELECT ipay.* FROM ipay ";
-		$sql .= "WHERE ipay_token='" . $this->token . "'";
+		$sql = "SELECT * FROM ipay ";
+		$sql .= "WHERE ipay_token='" . $this->token . "' LIMIT 1";
 		return $this->db->query($sql);
 
 	}
@@ -102,7 +102,7 @@ class ipaydb {
 	
 		$status = "Paided";
 		$sql = "UPDATE ipay SET ipay_transaction_id='" . $transaction_id . "',";
-		$sql .= "ipay_rec_account='" . $account . "',ipay_rec_amount='" . $amount . ",";
+		$sql .= "ipay_rec_account='" . $account . "',ipay_rec_amount='" . $amount . "',";
 		$sql .= "ipay_status='" . $status . "' WHERE ipay_token='" . $this->token . "'";
 		$this->db->non_select_query($sql);
 	}
