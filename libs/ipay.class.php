@@ -127,7 +127,7 @@ class ipay {
 	//$amounts - array of numbers - corresponding array of amounts to put into each cfop account
 	//returns - array
 	public function capture($accounts,$amounts) {
-		if ((count($accounts) == count($amounts)) && (count(accounts) > 0)) {
+		if ((count($accounts) == count($amounts)) && (count($accounts) > 0)) {
 			$numAccounts = count($accounts);
 			$params = "&numaccounts=" . $numAccounts;
 			$certifythis = array();
@@ -199,6 +199,7 @@ class ipay {
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
 		curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
 		$result = curl_exec($ch);
+		$result = trim(rtrim($result));
 		curl_close($ch);
 		$delimiter = chr(13) . chr(10);  // carriage return + line feed (separates elements)
 		$explodearray = explode($delimiter, $result);
